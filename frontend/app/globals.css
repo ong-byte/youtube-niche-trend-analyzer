@@ -1,0 +1,16 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+  color: #111;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+table th,
+table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
