@@ -1,8 +1,48 @@
-import TrendTable from "../components/TrendTable";
-import { getTrendingNiches } from "../lib/api";
+"use client";
 
-export default async function Home() {
-  const data = await getTrendingNiches("ID");
+import { useEffect, useState } from "react";
+import TrendTable from "../components/TrendTable";
+
+type Item = {
+  niche_id: number;
+  niche_name: string;
+  category: string;
+  country_code: string;
+  total_views: number;
+  total_uploads: number;
+  total_likes: number;
+  total_comments: number;
+  active_channels: number;
+  trend_score: number;
+  competition_score: number;
+  opportunity_score: number;
+};
+
+export default function Home() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+
+    fetch(`${apiBase}/api/niches/trending?country=ID`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch trending niches");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setItems(data.items || []);
+      })
+      .catch((err) => {
+        setError(err.message || "Fetch failed");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <main style={{ maxWidth: 1200, margin: "0 auto", padding: 24, fontFamily: "Arial, sans-serif" }}>
@@ -11,7 +51,10 @@ export default async function Home() {
 
       <section style={{ marginTop: 24 }}>
         <h2>Trending Niches - Indonesia</h2>
-        <TrendTable items={data.items || []} />
+
+        {loading && <p>Loading data...</p>}
+        {error && <p style={{ color: "red" }}>Error: {error}</p>}
+        {!loading && !error && <TrendTable items={items} />}
       </section>
     </main>
   );
